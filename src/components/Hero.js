@@ -1,6 +1,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 import SearchBar from "./SearchBar";
 
 export default function Hero() {
@@ -13,6 +14,20 @@ export default function Hero() {
         fill
         className="object-cover opacity-20 pointer-events-none"
       />
+
+      {/* Top-right buttons */}
+      <div className="absolute top-6 right-6 z-20 flex gap-3">
+        <Link href="/login">
+          <button className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition">
+            Login
+          </button>
+        </Link>
+        <Link href="/signup">
+          <button className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition">
+            Sign Up
+          </button>
+        </Link>
+      </div>
 
       {/* Foreground content */}
       <div className="relative z-10 flex flex-col items-center">

@@ -68,7 +68,7 @@ const handleMouseEnter = () => {
       style={{ width: '100px', transition: 'background 0.3s ease' }}
     >
         
-      <div className="p-4 flex w-auto items-center">
+      <a href ="/" className="p-4 flex w-auto items-center">
         <Image
           src="/logo.png"
           alt="Logo"
@@ -85,7 +85,7 @@ const handleMouseEnter = () => {
             className="w-auto"
           />
         </div>
-      </div>
+      </a>
       <div className="flex  gap-4">
         <div ref={iconRef} className='mt-[2vh] text-4xl '><div className='mt-[3vh] text-stone-400'><IoSearch/></div><div className='mt-[3vh] text-stone-400'><IoBookOutline /></div><div className='mt-[3vh] text-stone-400 '><IoBookmark/></div></div>
     <div>
