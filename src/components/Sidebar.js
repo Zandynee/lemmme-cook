@@ -5,14 +5,12 @@ import { gsap } from 'gsap';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IoBookmark, IoBookOutline, IoLogIn, IoPersonAdd, IoLogOut } from "react-icons/io5";
-
+import SearchBar from './SearchBar';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
-function SearchBar() {
-  return <input type="search" placeholder="Search..." className="w-full p-2 rounded-md text-gray-800 border border-gray-300" />;
-}
+
 
 export default function Sidebar({ setBlurActive }) {
   const { session, profile } = useAuth(); // Ambil `session` dan `profile`
@@ -39,7 +37,7 @@ export default function Sidebar({ setBlurActive }) {
     { href: '/signup', text: 'Sign Up', icon: <IoPersonAdd /> },
   ];
   const userItems = [
-    { href: '/recipe', text: 'My Recipes', icon: <IoBookOutline /> },
+    { href: '/my_recipe', text: 'My Recipes', icon: <IoBookOutline /> },
     { href: '/bookmark', text: 'Bookmarks', icon: <IoBookmark /> },
   ];
 
