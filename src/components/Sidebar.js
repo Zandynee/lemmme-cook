@@ -100,7 +100,7 @@ const handleMouseEnter = () => {
       </div>
 
       <div className="p-4">
-        <a href="yaehifd">
+        <a href="bookmark">
           <div
             ref={buttonRef1}
             className="bg-orange-500 rounded-md w-full flex items-center gap-2 p-2 text-lg"
@@ -112,7 +112,7 @@ const handleMouseEnter = () => {
       </div>
 
       <div className="p-4">
-        <a href="yaehifd">
+        <a href="search">
           <div
             ref={buttonRef2}
             className="bg-orange-500 rounded-md w-full flex items-center gap-2 p-2 text-lg"
