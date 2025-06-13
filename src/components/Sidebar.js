@@ -1,128 +1,129 @@
-'use client';
+"use client";
 
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import SearchBar from './SearchBar';
 import Image from 'next/image';
-import { IoBookmark, IoBookOutline, IoSearch } from "react-icons/io5";
+import Link from 'next/link';
+import { IoBookmark, IoBookOutline, IoLogIn, IoPersonAdd, IoLogOut } from "react-icons/io5";
+
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
+
+function SearchBar() {
+  return <input type="search" placeholder="Search..." className="w-full p-2 rounded-md text-gray-800 border border-gray-300" />;
+}
 
 export default function Sidebar({ setBlurActive }) {
-  const sidebarRef = useRef();
-  const textRef = useRef();
-  const searchRef = useRef();
-  const buttonRef1 = useRef();
-  const buttonRef2 = useRef();
-  const iconRef = useRef();
-  const timelineRef = useRef();
+  const { session, profile } = useAuth(); // Ambil `session` dan `profile`
+  const router = useRouter();
 
-
+  // ... (semua ref dan fungsi animasi GSAP Anda tidak perlu diubah)
+  const sidebarRef = useRef(null);
+  const textLogoRef = useRef(null);
+  const iconsContainerRef = useRef(null);
+  const linksContainerRef = useRef(null);
+  const timelineRef = useRef(null);
   useEffect(() => {
-    gsap.set(textRef.current, { x: -40, opacity: 0 });
-    gsap.set(searchRef.current, { x: -40, opacity: 0, overflow: 'hidden' });
-    gsap.set(buttonRef1.current, { x: -40, opacity: 0 });
-    gsap.set(buttonRef2.current, { x: -40, opacity: 0 });
-    gsap.set(sidebarRef.current, { width: '100px' });
-    gsap.set(iconRef.current, { x: 30, opacity: 1 });
+    gsap.set(linksContainerRef.current, { x: -200, opacity: 0 });
+    gsap.set(textLogoRef.current, { x: -50, opacity: 0 });
+    gsap.set(sidebarRef.current, { width: '80px' });
+    gsap.set(iconsContainerRef.current, { x: 0 });
   }, []);
+  const handleMouseEnter = () => { if (setBlurActive) setBlurActive(true); if (timelineRef.current) timelineRef.current.kill(); const tl = gsap.timeline(); timelineRef.current = tl; tl.to(sidebarRef.current, { width: '280px', duration: 0.3, ease: 'power2.out' }).to(iconsContainerRef.current, { x: -80, opacity: 0, duration: 0.2, ease: 'power2.out' }, '<').to([textLogoRef.current, linksContainerRef.current], { x: 0, opacity: 1, duration: 0.3, stagger: 0.1, ease: 'power2.out' }, '-=0.2');};
+  const handleMouseLeave = () => { if (setBlurActive) setBlurActive(false); if (timelineRef.current) timelineRef.current.kill(); const tl = gsap.timeline(); timelineRef.current = tl; tl.to([linksContainerRef.current, textLogoRef.current], { x: -50, opacity: 0, duration: 0.2, stagger: -0.1, ease: 'power2.in' }).to(iconsContainerRef.current, { x: 0, opacity: 1, duration: 0.2, ease: 'power2.in' }, '-=0.1').to(sidebarRef.current, { width: '80px', duration: 0.3, ease: 'power2.in' }, '<');};
 
-const handleMouseEnter = () => {
-  setBlurActive(true);
+  // Definisikan menu untuk guest dan user
+  const guestItems = [
+    { href: '/login', text: 'Login', icon: <IoLogIn /> },
+    { href: '/signup', text: 'Sign Up', icon: <IoPersonAdd /> },
+  ];
+  const userItems = [
+    { href: '/recipe', text: 'My Recipes', icon: <IoBookOutline /> },
+    { href: '/bookmark', text: 'Bookmarks', icon: <IoBookmark /> },
+  ];
 
-  // Kill existing timeline
-  if (timelineRef.current) timelineRef.current.kill();
+  const handleLogout = async () => {
+    if (setBlurActive) setBlurActive(false);
+    await supabase.auth.signOut();
+    router.push('/');
+  };
 
-  const tl = gsap.timeline();
-  timelineRef.current = tl;
-
-  tl.to(sidebarRef.current, { width: '250px', duration: 0.2, ease: 'power2.out' })
-    .to(iconRef.current, { x: -60, opacity: 0, duration: 0.1, ease: 'power2.out' }, '<')
-    .to(textRef.current, { x: 0, opacity: 1, duration: 0.1, ease: 'power2.out' }, '<')
-    .to(searchRef.current, { x: -60, opacity: 1, duration: 0.1, ease: 'power2.out' }, '<')
-    .to(buttonRef1.current, { x: -60, opacity: 1, duration: 0.1, ease: 'power2.out' }, '<')
-    .to(buttonRef2.current, { x: -60, opacity: 1, duration: 0.1, ease: 'power2.out' }, '<');
-};
-
-  const handleMouseLeave = () => {
-  setBlurActive(false);
-
-  // Kill existing timeline
-  if (timelineRef.current) timelineRef.current.kill();
-
-  const tl = gsap.timeline();
-  timelineRef.current = tl;
-
-  tl.to(buttonRef2.current, { x: -40, opacity: 0, duration: 0.07, ease: 'power2.in' }, '<')
-    .to(buttonRef1.current, { x: -40, opacity: 0, duration: 0.07, ease: 'power2.in' }, '<')
-    .to(searchRef.current, { x: -40, opacity: 0, duration: 0.07, ease: 'power2.in' }, '<')
-    .to(textRef.current, { x: -40, opacity: 0, duration: 0.07, ease: 'power2.in' }, '<')
-    .to(iconRef.current, { x: 30, opacity: 1, duration: 0.07, ease: 'power2.in' }, '<')
-    .to(sidebarRef.current, { width: '100px', duration: 0.07, ease: 'power2.in' });
-};
+  const NavLink = ({ href, icon, text }) => (
+    <Link href={href} className="flex items-center gap-4 p-3 text-lg text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+      <span className="text-2xl">{icon}</span>
+      <span>{text}</span>
+    </Link>
+  );
 
   return (
     <div
       ref={sidebarRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="h-screen bg-[#EEEEEE] overflow-hidden text-white fixed left-0 z-50 top-0"
-      style={{ width: '100px', transition: 'background 0.3s ease' }}
+      className="h-screen bg-stone-100 overflow-hidden fixed left-0 top-0 z-50 flex flex-col"
     >
-        
-      <a href ="/" className="p-4 flex w-auto items-center">
-        <Image
-          src="/logo.png"
-          alt="Logo"
-          width={248}
-          height={129}
-          className="w-[8vw]"
-        />
-        <div ref={textRef}>
-          <Image
-            src="/logoText.png"
-            alt="Logo"
-            width={200}
-            height={129}
-            className="w-auto"
-          />
+      <Link href="/" className="flex items-center p-4 h-[80px] flex-shrink-0">
+        <Image src="/logo.png" alt="Logo" width={50} height={50} />
+        <div ref={textLogoRef} className="ml-2">
+          <Image src="/logoText.png" alt="LemmeCook" width={150} height={30} />
         </div>
-      </a>
-      <div className="flex  gap-4">
-        <div ref={iconRef} className='mt-[2vh] text-4xl '><div className='mt-[3vh] text-stone-400'><IoSearch/></div><div className='mt-[3vh] text-stone-400'><IoBookOutline /></div><div className='mt-[3vh] text-stone-400 '><IoBookmark/></div></div>
-    <div>
-      <div className="p-4">
-        <div className="flex items-center gap-2 text-xl">
-          
-          <div ref={searchRef} className="flex-1">
-            <SearchBar />
-          </div>
-          
-        </div>
+      </Link>
+
+      {/* Tampilan Collapsed (Ikon) - Logikanya sudah benar */}
+      <div ref={iconsContainerRef} className="absolute top-[80px] left-[22px] flex flex-col items-center gap-6 text-3xl text-gray-500">
+        {(session ? userItems : guestItems).map((item) => <div key={item.href}>{item.icon}</div>)}
+        {session && <div><IoLogOut /></div>}
       </div>
 
-      <div className="p-4">
-        <a href="bookmark">
-          <div
-            ref={buttonRef1}
-            className="bg-orange-500 rounded-md w-full flex items-center gap-2 p-2 text-lg"
-          >
-            <IoBookmark />
-            <span>Bookmarks</span>
-          </div>
-        </a>
-      </div>
+      {/* Tampilan Expanded (Teks & Menu) */}
+      <div ref={linksContainerRef} className="p-4 flex flex-col justify-between flex-grow">
+        {/* Bagian Atas: Menu Utama */}
+        <div className="space-y-2">
+          <div className="mb-4"><SearchBar /></div>
+          {(session ? userItems : guestItems).map((item) => (
+            <NavLink key={item.href} href={item.href} icon={item.icon} text={item.text} />
+          ))}
+        </div>
 
-      <div className="p-4">
-        <a href="search">
-          <div
-            ref={buttonRef2}
-            className="bg-orange-500 rounded-md w-full flex items-center gap-2 p-2 text-lg"
-          >
-            <IoBookOutline />
-            <span>Recipes</span>
+        {/* ========================================================== */}
+        {/* BAGIAN BAWAH YANG DIPERBAIKI */}
+        {/* ========================================================== */}
+        {/* Wrapper ini hanya muncul jika pengguna sudah login */}
+        {session && (
+          <div className="space-y-2 pt-4 border-t border-gray-300">
+            {/* Tombol Logout selalu ada jika sudah login */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-4 p-3 text-lg text-gray-700 rounded-lg hover:bg-gray-200 transition-colors w-full"
+            >
+              <span className="text-2xl"><IoLogOut /></span>
+              <span>Logout</span>
+            </button>
+            
+            {/* Info Profil: Tampilkan jika data profil sudah siap, jika belum tampilkan 'loading' */}
+            {profile ? (
+              <div className="flex items-center gap-3 p-2">
+                <Image 
+                  src={profile.photo_url || '/default-avatar.png'}
+                  alt={profile.username || 'User Avatar'}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover"
+                />
+                <div>
+                  <p className="font-bold text-gray-800">{profile.username || 'New User'}</p>
+                  <p className="text-sm text-gray-500 truncate">{session.user.email}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 p-2 h-[56px] flex items-center">
+                <span>Loading profile...</span>
+              </div>
+            )}
           </div>
-        </a>
-      </div>
-      </div>
+        )}
+        {/* ========================================================== */}
       </div>
     </div>
   );

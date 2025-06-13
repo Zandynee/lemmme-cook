@@ -1,14 +1,44 @@
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const router = useRouter();
+
+ // Langkah 2: Ubah handleSubmit menjadi fungsi async
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ email, password });
-    // Add your login logic here
+    
+    // Reset state
+    setError('');
+    setLoading(true);
+
+    try {
+      // Langkah 3: Panggil fungsi signInWithPassword dari Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      // Langkah 4: Tangani response dari Supabase
+      if (error) {
+        setError(error.message); // Tampilkan pesan error dari Supabase
+      } else if (data.user) {
+        router.push('/'); 
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      // Langkah 5: Hentikan state loading
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,23 +1,64 @@
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function SignupPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
     setError('');
-    console.log({ username, email, password });
-    // Add your registration logic here (e.g., API call)
+    setLoading(true);
+
+    try {
+      // Langkah 3: Panggil fungsi signUp dari Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          // Data tambahan ini akan disimpan di `raw_user_meta_data`
+          // dan akan digunakan oleh trigger SQL Anda untuk mengisi tabel `public.users`
+          data: {
+            username: username,
+            // Jika Anda punya input full_name, tambahkan di sini
+            // full_name: fullName 
+          }
+        }
+      });
+
+      // Langkah 4: Tangani response dari Supabase
+      if (error) {
+        setError(error.message); // Tampilkan pesan error dari Supabase
+      } else if (data.user) {
+        alert('Registration successful! Please check your email to confirm your account.');
+        router.push('/login');
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+      }
+    } catch (err) {
+      // Menangani error tak terduga
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      // Langkah 5: Hentikan state loading, baik sukses maupun gagal
+      setLoading(false);
+    }
   };
 
   return (

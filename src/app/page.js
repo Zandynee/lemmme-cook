@@ -1,7 +1,11 @@
 "use client";
+
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
+
 import Sidebar from "@/components/Sidebar";
 import Hero from "@/components/Hero";
-import { useState } from "react";
 import RecipeCard from "@/components/RecipeCard";
 
 export default function Home() {
