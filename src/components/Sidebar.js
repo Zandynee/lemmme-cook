@@ -64,7 +64,7 @@ const handleMouseEnter = () => {
       ref={sidebarRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="h-screen bg-stone-400 overflow-hidden text-white fixed left-0 z-50 top-0"
+      className="h-screen bg-[#EEEEEE] overflow-hidden text-white fixed left-0 z-50 top-0"
       style={{ width: '100px', transition: 'background 0.3s ease' }}
     >
         
@@ -87,7 +87,7 @@ const handleMouseEnter = () => {
         </div>
       </div>
       <div className="flex  gap-4">
-        <div ref={iconRef} className='mt-[2vh] text-4xl '><div className='mt-[3vh] '><IoSearch/></div><div className='mt-[3vh] '><IoBookOutline /></div><div className='mt-[3vh] '><IoBookmark/></div></div>
+        <div ref={iconRef} className='mt-[2vh] text-4xl '><div className='mt-[3vh] text-stone-400'><IoSearch/></div><div className='mt-[3vh] text-stone-400'><IoBookOutline /></div><div className='mt-[3vh] text-stone-400 '><IoBookmark/></div></div>
     <div>
       <div className="p-4">
         <div className="flex items-center gap-2 text-xl">
