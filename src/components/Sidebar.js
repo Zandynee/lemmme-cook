@@ -39,7 +39,7 @@ export default function Sidebar({ setBlurActive }) {
     { href: '/signup', text: 'Sign Up', icon: <IoPersonAdd /> },
   ];
   const userItems = [
-    { href: '/recipe', text: 'My Recipes', icon: <IoBookOutline /> },
+    { href: '/my-recipe', text: 'My Recipes', icon: <IoBookOutline /> },
     { href: '/bookmark', text: 'Bookmarks', icon: <IoBookmark /> },
   ];
 

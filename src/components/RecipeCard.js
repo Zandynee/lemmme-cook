@@ -1,53 +1,51 @@
-"use client";
+// /src/components/RecipeCard.js
+'use client';
 import Image from "next/image";
-import { IoBookmarkOutline, IoPersonOutline } from "react-icons/io5";
+import { IoPersonOutline } from "react-icons/io5";
 import Link from "next/link";
+import BookmarkButton from './BookmarkButton';
 
-export default function RecipeCard({ imageSrc, category, title, href, user }) {
+// PASTIKAN 'id' ADA DI SINI
+export default function RecipeCard({ id, imageSrc, categories, title, href, user }) {
+  
+  // (Fungsi handleBookmarkClick tidak lagi dibutuhkan di sini)
+
   return (
-    <Link href={href} className="block">
-      <div className="relative rounded-2xl overflow-hidden shadow-md w-[320px] h-[440px]">
-        <Image
-          src={imageSrc}
-          alt={title}
-          fill
-          className="object-cover"
-          priority
-        />
+    <div className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col">
+      <Link href={href || '#'} className="block">
+        <div className="relative w-full aspect-[16/10] overflow-hidden">
+          <Image
+            src={imageSrc || '/default-image.jpg'}
+            alt={title || 'Recipe Image'}
+            fill
+            className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+            // TAMBAHKAN PROP INI
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+          />
+        </div>
+      </Link>
 
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-        <div className="absolute inset-0 p-4 flex flex-col justify-end text-white space-y-3">
-          {/* Top Row */}
-          <div className="flex items-center justify-between">
-            <span className="bg-white text-black text-sm font-medium rounded-lg px-3 py-1">
-              {category}
-            </span>
-            <div className="flex items-center text-sm gap-1">
-              <IoPersonOutline />
-              <span>{user}</span>
+      <div className="p-5 flex flex-col flex-grow">
+        <div className="flex justify-between items-start mb-2">
+            <div className="flex flex-wrap gap-2">
+                {Array.isArray(categories) && categories.slice(0, 2).map((cat) => (
+                    <span key={cat.id} className="text-xs font-semibold text-orange-600 bg-orange-100 px-2 py-1 rounded-full">{cat.category_name}</span>
+                ))}
             </div>
-          </div>
+          
+          {/* PASTIKAN ANDA MENGIRIM prop recipeId={id} DI SINI */}
+          <BookmarkButton recipeId={id} />
 
-          {/* Title */}
-          <h2 className="text-2xl font-semibold">{title}</h2>
-
-          {/* Bottom Row */}
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              className="text-white text-xl hover:text-orange-400 transition"
-              onClick={(e) => {
-                e.preventDefault(); // Prevent navigating when clicking the bookmark
-                // Add bookmark logic here
-              }}
-            >
-              <IoBookmarkOutline />
-            </button>
-          </div>
+        </div>
+        <Link href={href || '#'} className="block">
+          <h2 className="text-xl font-bold text-gray-800 leading-tight line-clamp-2 hover:text-blue-600 transition-colors">{title || 'Untitled Recipe'}</h2>
+        </Link>
+        <div className="flex-grow"></div>
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
+            <IoPersonOutline className="text-gray-500" />
+            <span className="text-sm text-gray-600">{user || 'Anonymous'}</span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

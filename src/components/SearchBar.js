@@ -1,31 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { IoSearch } from 'react-icons/io5';
 
-export default function SearchBar() {
-  const [query, setQuery] = useState('');
-  const router = useRouter();
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?query=${encodeURIComponent(query)}`);
-    }
-  };
-
+export default function SearchBar({ query, onQueryChange }) {
   return (
-    <form
-      onSubmit={handleSearch}
-      className="flex items-center gap-2 bg-white px-4 py-2 shadow-md w-full max-w-md"
-    >
+    <div className="relative w-full">
+      {/* Ikon diletakkan di dalam input field */}
+      <IoSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
       <input
-        type="text"
+        type="search"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search..."
-        className="flex-1 outline-none bg-transparent text-gray-800"
+        onChange={(e) => onQueryChange(e.target.value)}
+        placeholder="Search for titles, ingredients..."
+        // Padding kiri ditambah agar teks tidak menimpa ikon
+        className="w-full p-3 pl-12 rounded-lg text-gray-800 border-2 border-transparent focus:outline-none focus:border-orange-500 transition-colors"
       />
-    </form>
+    </div>
   );
 }

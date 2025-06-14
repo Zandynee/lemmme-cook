@@ -1,93 +1,92 @@
-"use client";
-import { useState } from "react";
-import Sidebar from "@/components/Sidebar";
-import RecipeCard from "@/components/RecipeCard";
+// /src/app/bookmarks/page.js
 
-export default function BookmarkPage() {
-  const [blurActive, setBlurActive] = useState(false);
+'use client';
 
-  const bookmarks = Array.from({ length: 10 }, (_, i) => ({
-    id: i,
-    imageSrc: "/logo.png",
-    href: "",
-    title: getRandomTitle(),
-    user: getRandomUser(),
-    category: getRandomCategory(),
-  }));
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
+import RecipeCard from '@/components/RecipeCard';
+import Sidebar from '@/components/Sidebar';
+
+export default function BookmarksPage() {
+  const { session, user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [bookmarkedRecipes, setBookmarkedRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Penjaga rute
+  useEffect(() => {
+    if (!authLoading && !session) {
+      router.push('/login');
+    }
+  }, [session, authLoading, router]);
+  
+  // Ambil resep yang di-bookmark
+  useEffect(() => {
+    const fetchBookmarkedRecipes = async () => {
+      if (!user) return;
+      setLoading(true);
+
+      // Query canggih: mulai dari 'bookmarks', ambil semua data dari 'recipes' yang berelasi
+      const { data, error } = await supabase
+        .from('bookmarks')
+        .select(`
+          recipes (
+            *,
+            users!recipes_user_id_fkey (username),
+            categories (id, category_name)
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching bookmarks:', error);
+      } else {
+        // Hasilnya adalah array objek { recipes: {...} }, jadi kita perlu map
+        const recipes = data.map(item => item.recipes);
+        setBookmarkedRecipes(recipes);
+      }
+      setLoading(false);
+    };
+
+    if (user) {
+      fetchBookmarkedRecipes();
+    }
+  }, [user]);
+
+  if (authLoading || !session) {
+    return <p>Loading or redirecting...</p>;
+  }
 
   return (
-    <div className="relative max-w-screen overflow-hidden">
-      <main className="ml-[10vw] relative z-0 p-6 ">
-        <h1 className="text-3xl font-bold mb-6 ">Your Bookmarks</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 ">
-          {bookmarks.map((item) => (
-            <RecipeCard
-              key={item.id}
-              imageSrc={item.imageSrc}
-              title={item.title}
-              user={item.user}
-              category={item.category}
-              href={item.href}
-            />
-          ))}
-        </div>
+    <div className="relative">
+      <Sidebar />
+      <main className="md:ml-[80px] p-6 md:p-8 bg-gray-50 min-h-screen">
+        <h1 className="text-4xl font-bold text-gray-800 mb-8">My Bookmarks</h1>
+        {loading ? (
+          <p>Loading your bookmarked recipes...</p>
+        ) : (
+          bookmarkedRecipes.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {bookmarkedRecipes.map((recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  id={recipe.id}
+                  href={`/recipe/${recipe.id}`}
+                  imageSrc={recipe.photo_url}
+                  title={recipe.title}
+                  user={recipe.users ? recipe.users.username : 'Anonymous'}
+                  categories={recipe.categories}
+                />
+              ))}
+            </div>
+          ) : (
+            <p>You haven't bookmarked any recipes yet.</p>
+          )
+        )}
       </main>
-
-      <div
-        className={`fixed inset-0 z-50 transition duration-300 pointer-events-none ${
-          blurActive ? "backdrop-blur-sm" : "backdrop-blur-0"
-        }`}
-      />
-      <Sidebar setBlurActive={setBlurActive} />
     </div>
   );
-}
-
-// Helpers
-function getRandomTitle() {
-  const titles = [
-    "Matcha Pancakes",
-    "Lemon Chicken",
-    "Beef Bulgogi",
-    "Sambal Fried Rice",
-    "Creamy Ramen",
-    "Pumpkin Soup",
-    "Chili Garlic Noodles",
-    "Miso Glazed Tofu",
-    "Teriyaki Burger",
-    "Tom Yum Soup",
-  ];
-  return titles[Math.floor(Math.random() * titles.length)];
-}
-
-function getRandomUser() {
-  const users = [
-    "cookiediva",
-    "hotpanchef",
-    "flavorfiend",
-    "bakehacker",
-    "umamiking",
-    "wokthisway",
-    "dailybite",
-    "saltandsizzle",
-    "chef_on_call",
-    "midnightbaker",
-  ];
-  return users[Math.floor(Math.random() * users.length)];
-}
-
-function getRandomCategory() {
-  const categories = [
-    "Breakfast",
-    "Asian",
-    "Spicy",
-    "Comfort",
-    "Vegan",
-    "Fusion",
-    "Classic",
-    "Grill",
-    "Soup",
-    "Quick Fix",
-  ];
-  return categories[Math.floor(Math.random() * categories.length)];
 }
